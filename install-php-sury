@@ -103,7 +103,7 @@ to_install=$(echo $old_pkgs | sed "s|$OLD_PHP_V|$PHP_V|")
 
 apt-get update
 DEBIAN_FRONTEND=non-interactive apt-get install -y $to_install
-apache=$(cat to_install | grep libapache2-mod-php)"
+apache=$(cat to_install | grep libapache2-mod-php)
 if [[ -n "$apache" ]]; then
     a2dismod php$OLD_PHP_V
     a2enmod php$PHP_V
