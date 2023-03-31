@@ -39,7 +39,7 @@ EOF
 gen_prefs() {
     [[ "$#" -eq 1 ]] || fatal "gen_prefs failed"
     php_v=$1
-    cat > $PREF <<EOF
+    cat > $PREFS <<EOF
 Package: *
 Pin: origin packages.sury.org
 Pin-Priority: 10
