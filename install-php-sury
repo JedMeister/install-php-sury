@@ -4,8 +4,10 @@ fatal() { echo "FATAL: $@"; exit 1; }
 
 [[ -z "$DEBUG" ]] || set -x
 
-OLD_PHP_V=7.3
-PHP_V=7.4
+#OLD_PHP_V=7.3
+#PHP_V=7.4
+OLD_PHP_V=7.4
+PHP_V=8.1
 
 CODENAME=$(lsb_release -sc)
 
@@ -77,6 +79,10 @@ Pin: origin packages.sury.org
 Pin-Priority: 550
 
 Package: libgd3
+Pin: origin packages.sury.org
+Pin-Priority: 550
+
+Package: libsodium23
 Pin: origin packages.sury.org
 Pin-Priority: 550
 
