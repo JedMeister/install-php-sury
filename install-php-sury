@@ -1,0 +1,105 @@
+#!/bin/bash -e
+
+fatal() { echo "FATAL: $@"; exit 1; }
+
+[[ -z "$DEBUG" ]] || set -x
+
+OLD_PHP_V=7.3
+PHP_V=7.4
+
+CODENAME=$(lsb_release -sc)
+
+KEYFILE=/usr/share/keyrings/php-sury.org.gpg
+SRC_LIST=/etc/apt/sources.list.d/php.list
+PREFS=/etc/apt/preferences.d/php-sury.pref
+
+check_pkgs() {
+    [[ "$#" -eq 1 ]] || fatal "check_pkgs failed"
+    pkg_regex=$1
+    dpkg -l \
+        | tr -s '[[:space:]]' \
+        | cut -d\  -f 1,2 \
+        | sed -n "\|^ii|s|^ii[[:space:]]\(.*$pkg_regex.*\)|\1|p"
+}
+
+# e.g. check_pkgs php$OLD_PHP_V
+
+dl_key() {
+    wget -O $KEYFILE https://packages.sury.org/php/apt.gpg
+}
+
+gen_sources() {
+    cat > $SRC_LIST <<EOF
+# DEB.SURY.ORG repo for php
+
+deb [signed-by=$KEYFILE] https://packages.sury.org/php/ $CODENAME main
+EOF
+}
+
+gen_prefs() {
+    [[ "$#" -eq 1 ]] || fatal "gen_prefs failed"
+    php_v=$1
+    cat > $PREF <<EOF
+Package: *
+Pin: origin packages.sury.org
+Pin-Priority: 10
+
+Package: php${php_v}-*
+Pin: origin packages.sury.org
+Pin-Priority: 550
+
+Package: libapache2-mod-php${php_v}
+Pin: origin packages.sury.org
+Pin-Priority: 550
+
+Package: php-pear
+Pin: origin packages.sury.org
+Pin-Priority: 550
+
+Package: php-imagick
+Pin: origin packages.sury.org
+Pin-Priority: 550
+
+Package: libpcre3
+Pin: origin packages.sury.org
+Pin-Priority: 550
+
+Package: libzip4
+Pin: origin packages.sury.org
+Pin-Priority: 550
+
+Package: php-common
+Pin: origin packages.sury.org
+Pin-Priority: 550
+
+Package: libpcre2-8-0
+Pin: origin packages.sury.org
+Pin-Priority: 550
+
+Package: libgd3
+Pin: origin packages.sury.org
+Pin-Priority: 550
+
+# only enable below if using latest php version
+
+#Package: php-redis
+#Pin: origin packages.sury.org
+#Pin-Priority: 550
+
+#Package: php-igbinary
+#Pin: origin packages.sury.org
+#Pin-Priority: 550
+EOF
+}
+
+[[ -f "$KEYFILE" ]] || dl_key
+[[ -f "$SRC_LIST" ]] || gen_sources
+[[ -f "$PREFS" ]] || gen_prefs $PHP_V
+
+new_pkgs=$(check_pkgs "php$PHP_V")
+[[ -z "$new_pkgs" ]] || fatal "php$PHP_V packages already installed"
+old_pkgs=$(check_pkgs php$OLD_PHP_V  | grep -v json)
+to_install=$(echo $old_pkgs | sed "s|$OLD_PHP_V|$PHP_V|")
+
+apt-get update
+DEBIAN_FRONTEND=non-interactive apt-get install -y $to_install
