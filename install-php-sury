@@ -4,10 +4,10 @@ fatal() { echo "FATAL: $@"; exit 1; }
 
 [[ -z "$DEBUG" ]] || set -x
 
-#OLD_PHP_V=7.3
-#PHP_V=7.4
-OLD_PHP_V=7.4
-PHP_V=8.1
+OLD_PHP_V=7.3
+PHP_V=7.4
+#OLD_PHP_V=7.4
+#PHP_V=8.1
 
 CODENAME=$(lsb_release -sc)
 
@@ -108,9 +108,12 @@ old_pkgs=$(check_pkgs php$OLD_PHP_V  | grep -v json)
 to_install=$(echo $old_pkgs | sed "s|$OLD_PHP_V|$PHP_V|")
 
 apt-get update
-DEBIAN_FRONTEND=noninteractive apt-get install -y $to_install
-apache=$(echo $to_install | grep libapache2-mod-php)
-if [[ -n "$apache" ]]; then
-    a2dismod php$OLD_PHP_V
-    a2enmod php$PHP_V
-fi
+#DEBIAN_FRONTEND=noninteractive apt-get install -y $to_install
+#apache=$(echo $to_install | grep libapache2-mod-php)
+#if [[ -n "$apache" ]]; then
+#    a2dismod php$OLD_PHP_V
+#    a2enmod php$PHP_V
+#fi
+echo "Completed successfully. Packages to install:"
+echo "--------------------------------------------"
+echo "$to_install"
