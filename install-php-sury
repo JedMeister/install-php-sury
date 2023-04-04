@@ -105,7 +105,7 @@ EOF
 new_pkgs=$(check_pkgs "php$PHP_V")
 [[ -z "$new_pkgs" ]] || fatal "php$PHP_V packages already installed"
 old_pkgs=$(check_pkgs php$OLD_PHP_V  | grep -v json)
-to_install=$(echo $old_pkgs | sed "s|$OLD_PHP_V|$PHP_V|")
+to_install=$(echo $old_pkgs | sed "s|$OLD_PHP_V|$PHP_V|g")
 
 apt-get update
 #DEBIAN_FRONTEND=noninteractive apt-get install -y $to_install
